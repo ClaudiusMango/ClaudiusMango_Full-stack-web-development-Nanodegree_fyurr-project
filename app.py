@@ -12,6 +12,8 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+import collections
+collections.Callable = collections.abc.Callable
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -22,6 +24,9 @@ app.config.from_object('config')
 db = SQLAlchemy(app)
 
 # TODO: connect to a local postgresql database
+
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:passpostgres@localhost:5432/postgres'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 #----------------------------------------------------------------------------#
 # Models.
