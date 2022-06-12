@@ -14,6 +14,10 @@ from flask_wtf import Form
 from forms import *
 import collections
 collections.Callable = collections.abc.Callable
+from flask_migrate import Migrate
+from sqlalchemy.orm import relationship
+
+
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -27,6 +31,10 @@ db = SQLAlchemy(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:passpostgres@localhost:5432/postgres'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# adding flask migrate
+migrate = Migrate(app, db)
+
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -43,6 +51,11 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    website = db.Column(db.String(120))
+    seeking_talent = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(120))
+    shows = relationship("Show", back_populates="venue")
+
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -57,11 +70,25 @@ class Artist(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    website = db.Column(db.String(120))
+    seeking_venue = db.Column(db.Boolean)
+    seeking_description = db.Column(db.String(120))
+    shows = relationship("Show", back_populates="artist")
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
 
+class Show(db.Model):
+
+    __tablename__ = 'Show'
+
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime(timezone=True), default=datetime.now())
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'))
+    artist = relationship("Artist", back_populates="shows")
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'))
+    venue = relationship("Venue", back_populates="shows")
 #----------------------------------------------------------------------------#
 # Filters.
 #----------------------------------------------------------------------------#
